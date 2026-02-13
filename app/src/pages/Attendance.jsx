@@ -18,8 +18,6 @@ function Attendance() {
   const [loadingAttendance, setLoadingAttendance] = useState(false);
   const [error, setError] = useState("");
 
-  /* ================= FETCH EMPLOYEES ================= */
-
   const fetchEmployees = useCallback(async () => {
     setLoadingEmployees(true);
     setError("");
@@ -33,8 +31,6 @@ function Attendance() {
       setLoadingEmployees(false);
     }
   }, []);
-
-  /* ================= FETCH ATTENDANCE ================= */
 
   const fetchAttendance = useCallback(async (id) => {
     if (!id) return;
@@ -51,8 +47,6 @@ function Attendance() {
     }
   }, []);
 
-  /* ================= EFFECTS ================= */
-
   useEffect(() => {
     fetchEmployees();
   }, [fetchEmployees]);
@@ -63,40 +57,35 @@ function Attendance() {
     }
   }, [selectedEmployee, fetchAttendance]);
 
-  /* ================= MEMOIZED SELECTED EMPLOYEE ================= */
-
   const selectedEmployeeData = useMemo(() => {
     return employees.find((emp) => emp.id === selectedEmployee);
   }, [employees, selectedEmployee]);
 
-  /* ================= UI ================= */
-
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <CalendarCheck className="text-indigo-600" />
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-800">
+    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-6 lg:py-8 space-y-6 sm:space-y-8">
+      <div className="flex items-start sm:items-center gap-3 sm:gap-4">
+        <div className="p-2 sm:p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl sm:rounded-2xl shadow-lg">
+          <CalendarCheck className="text-white w-5 h-5 sm:w-6 sm:h-6" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800 truncate">
             Attendance Management
           </h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Track and manage employee attendance records
           </p>
         </div>
       </div>
 
-      {/* Employee Selector */}
-      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-        <label className="text-sm font-medium text-slate-600 mb-2 block">
+      <div className="bg-white border border-slate-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg">
+        <label className="text-xs sm:text-sm font-semibold text-slate-700 mb-2 sm:mb-3 block">
           Select Employee
         </label>
 
         {loadingEmployees ? (
-          <div className="flex items-center gap-2 text-slate-500">
+          <div className="flex items-center gap-2 text-slate-500 py-2">
             <Loader2 className="animate-spin w-4 h-4" />
-            Loading employees...
+            <span className="text-sm">Loading employees...</span>
           </div>
         ) : (
           <select
@@ -106,7 +95,7 @@ function Attendance() {
                 e.target.value ? Number(e.target.value) : null
               )
             }
-            className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            className="w-full border border-slate-300 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white hover:border-slate-400"
           >
             <option value="">Choose an employee</option>
 
@@ -119,25 +108,25 @@ function Attendance() {
         )}
       </div>
 
-      {/* Selected Employee Info */}
       {selectedEmployeeData && (
-        <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h3 className="font-semibold text-slate-800">
+        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 shadow-sm">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-bold text-base sm:text-lg text-slate-800 truncate">
               {selectedEmployeeData.full_name}
             </h3>
-            <p className="text-sm text-slate-500">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 truncate">
               {selectedEmployeeData.department} • {selectedEmployeeData.email}
             </p>
           </div>
 
-          <Users className="text-indigo-400" />
+          <div className="p-2 sm:p-3 bg-white rounded-lg sm:rounded-xl shadow-sm">
+            <Users className="text-indigo-500 w-5 h-5 sm:w-6 sm:h-6" />
+          </div>
         </div>
       )}
 
-      {/* Attendance Section */}
       {selectedEmployee && (
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           <AttendanceForm
             employeeId={selectedEmployee}
             refresh={() => fetchAttendance(selectedEmployee)}
@@ -150,11 +139,10 @@ function Attendance() {
         </div>
       )}
 
-      {/* Error */}
       {error && (
-        <div className="flex items-center gap-2 bg-red-50 text-red-600 p-4 rounded-lg text-sm">
-          <AlertCircle className="w-4 h-4" />
-          {error}
+        <div className="flex items-start sm:items-center gap-2 sm:gap-3 bg-red-50 border border-red-200 text-red-700 p-3 sm:p-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm shadow-sm">
+          <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 mt-0.5 sm:mt-0" />
+          <span className="flex-1">{error}</span>
         </div>
       )}
     </div>

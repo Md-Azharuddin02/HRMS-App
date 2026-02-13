@@ -4,23 +4,22 @@ import Layout from "./layout/Layout";
 import Loader from "./components/Loader";
 import { AppContext } from "./store/AppContext";
 
-// Lazy load pages
 const Employees = lazy(() => import("./pages/Employees"));
 const Attendance = lazy(() => import("./pages/Attendance"));
 
 function App() {
   const { loading } = useContext(AppContext);
-
+  
   return (
     <BrowserRouter>
       {loading && <Loader />}
-
       <Suspense fallback={<Loader />}>
         <Routes>
           <Route element={<Layout />}>
             <Route path="/employees" element={<Employees />} />
             <Route path="/attendance" element={<Attendance />} />
-            <Route path="*" element={<Navigate to="/employees" />} />
+            <Route path="/" element={<Navigate to="/employees" replace />} />
+            <Route path="*" element={<Navigate to="/employees" replace />} />
           </Route>
         </Routes>
       </Suspense>

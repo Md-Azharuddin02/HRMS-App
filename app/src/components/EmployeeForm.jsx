@@ -16,8 +16,6 @@ function EmployeeForm({ refresh }) {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  /* ================= VALIDATION ================= */
-
   const validate = useCallback(() => {
     const newErrors = {};
 
@@ -38,8 +36,6 @@ function EmployeeForm({ refresh }) {
 
     return newErrors;
   }, [form]);
-
-  /* ================= HANDLERS ================= */
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -90,7 +86,6 @@ function EmployeeForm({ refresh }) {
     }
   };
 
-  /* Auto hide success message */
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => setSuccess(false), 3000);
@@ -99,31 +94,29 @@ function EmployeeForm({ refresh }) {
   }, [success]);
 
   return (
-    <div className="max-w-3xl mx-auto mt-8 px-4">
-      <div className="bg-white border border-slate-200 shadow-sm rounded-xl overflow-hidden">
-
-        {/* Header */}
-        <div className="px-6 py-5 border-b bg-slate-50">
+    <div className="w-full">
+      <div className="bg-white border border-slate-200 shadow-xl rounded-xl sm:rounded-2xl overflow-hidden">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 border-b bg-gradient-to-r from-slate-50 to-slate-100">
           <div className="flex items-center gap-3">
-            <UserPlus className="w-5 h-5 text-indigo-600" />
-            <div>
-              <h2 className="text-lg font-semibold text-slate-800">
+            <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg sm:rounded-xl shadow-lg">
+              <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-base sm:text-lg font-bold text-slate-800">
                 Add Employee
               </h2>
-              <p className="text-sm text-slate-500">
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
                 Register a new employee
               </p>
             </div>
           </div>
         </div>
 
-        {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="px-6 py-6 space-y-6"
+          className="px-4 sm:px-6 py-5 sm:py-6 space-y-5 sm:space-y-6"
         >
-          <div className="grid sm:grid-cols-2 gap-5">
-
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <InputField
               label="Employee Code"
               name="employee_id"
@@ -161,32 +154,32 @@ function EmployeeForm({ refresh }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
           >
             {loading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Processing...
+                <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                <span className="text-sm sm:text-base">Processing...</span>
               </>
             ) : (
               <>
-                <UserPlus className="w-4 h-4" />
-                Add Employee
+                <UserPlus className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="text-sm sm:text-base">Add Employee</span>
               </>
             )}
           </button>
 
           {serverError && (
-            <div className="flex items-center gap-2 bg-red-50 text-red-600 p-3 rounded-lg text-sm">
-              <AlertCircle className="w-4 h-4" />
-              {serverError}
+            <div className="flex items-start sm:items-center gap-2 sm:gap-3 bg-red-50 border border-red-200 text-red-700 p-3 sm:p-4 rounded-lg sm:rounded-xl text-xs sm:text-sm shadow-sm">
+              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 mt-0.5 sm:mt-0" />
+              <span className="flex-1">{serverError}</span>
             </div>
           )}
 
           {success && (
-            <div className="flex items-center gap-2 bg-green-50 text-green-600 p-3 rounded-lg text-sm">
-              <CheckCircle className="w-4 h-4" />
-              Employee added successfully.
+            <div className="flex items-start sm:items-center gap-2 sm:gap-3 bg-green-50 border border-green-200 text-green-700 p-3 sm:p-4 rounded-lg sm:rounded-xl text-xs sm:text-sm shadow-sm">
+              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 mt-0.5 sm:mt-0" />
+              <span className="flex-1">Employee added successfully.</span>
             </div>
           )}
         </form>
@@ -194,8 +187,6 @@ function EmployeeForm({ refresh }) {
     </div>
   );
 }
-
-/* ================= INPUT COMPONENT ================= */
 
 const InputField = memo(function InputField({
   label,
@@ -206,8 +197,8 @@ const InputField = memo(function InputField({
   error,
 }) {
   return (
-    <div className="flex flex-col space-y-1">
-      <label className="text-sm font-medium text-slate-600">
+    <div className="flex flex-col space-y-1.5 sm:space-y-2">
+      <label className="text-xs sm:text-sm font-semibold text-slate-700">
         {label}
       </label>
 
@@ -216,16 +207,16 @@ const InputField = memo(function InputField({
         name={name}
         value={value}
         onChange={onChange}
-        className={`border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 transition text-sm
+        className={`border rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 focus:outline-none focus:ring-2 transition-all duration-200 text-sm sm:text-base
         ${
           error
-            ? "border-red-400 focus:ring-red-400"
-            : "border-slate-300 focus:ring-indigo-500"
+            ? "border-red-400 focus:ring-red-400 bg-red-50"
+            : "border-slate-300 focus:ring-indigo-500 focus:border-indigo-500 hover:border-slate-400"
         }`}
       />
 
       {error && (
-        <span className="text-xs text-red-500">{error}</span>
+        <span className="text-xs text-red-600 font-medium">{error}</span>
       )}
     </div>
   );

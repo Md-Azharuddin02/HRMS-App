@@ -7,8 +7,6 @@ import {
   Loader2,
 } from "lucide-react";
 
-/* ================= MAIN COMPONENT ================= */
-
 function EmployeeList({ employees = [], refresh, loading = false }) {
   const [deletingId, setDeletingId] = useState(null);
   const [confirmId, setConfirmId] = useState(null);
@@ -31,31 +29,30 @@ function EmployeeList({ employees = [], refresh, loading = false }) {
     }
   }, [confirmId, refresh]);
 
-  /* ================= LOADING ================= */
-
   if (loading) {
     return (
-      <div className="mt-8 space-y-4">
+      <div className="space-y-3">
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className="h-14 rounded-lg bg-slate-200 animate-pulse"
+            className="h-16 sm:h-20 rounded-xl sm:rounded-2xl bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 animate-pulse"
+            style={{ animationDelay: `${i * 0.1}s` }}
           />
         ))}
       </div>
     );
   }
 
-  /* ================= EMPTY ================= */
-
   if (!employees.length) {
     return (
-      <div className="mt-10 flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 p-8 bg-white">
-        <Users className="w-8 h-8 text-slate-400 mb-3" />
-        <h3 className="text-md font-semibold text-slate-700">
+      <div className="flex flex-col items-center justify-center rounded-xl sm:rounded-2xl border-2 border-dashed border-slate-300 p-8 sm:p-12 bg-white shadow-sm">
+        <div className="p-4 bg-slate-100 rounded-full mb-4">
+          <Users className="w-8 h-8 sm:w-10 sm:h-10 text-slate-400" />
+        </div>
+        <h3 className="text-base sm:text-lg font-bold text-slate-700">
           No Employees Found
         </h3>
-        <p className="text-sm text-slate-500 mt-1">
+        <p className="text-xs sm:text-sm text-slate-500 mt-2 text-center">
           Employees will appear here once added.
         </p>
       </div>
@@ -64,57 +61,54 @@ function EmployeeList({ employees = [], refresh, loading = false }) {
 
   return (
     <>
-      <div className="mt-8 bg-white border border-slate-200 shadow-sm rounded-xl overflow-hidden">
-
-        {/* Header */}
-        <div className="px-6 py-4 border-b bg-slate-50">
-          <h2 className="text-lg font-semibold text-slate-800">
+      <div className="bg-white border border-slate-200 shadow-xl rounded-xl sm:rounded-2xl overflow-hidden">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 border-b bg-gradient-to-r from-slate-50 to-slate-100">
+          <h2 className="text-base sm:text-lg font-bold text-slate-800">
             Employee Directory
           </h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Manage employee records
           </p>
         </div>
 
-        {/* Responsive Table */}
         <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead className="text-xs uppercase text-slate-500">
+          <table className="min-w-full text-xs sm:text-sm">
+            <thead className="text-xs uppercase text-slate-500 bg-slate-50">
               <tr>
-                <th className="px-4 py-3 text-left">Code</th>
-                <th className="px-4 py-3 text-left">Name</th>
-                <th className="px-4 py-3 text-left hidden sm:table-cell">Email</th>
-                <th className="px-4 py-3 text-left hidden md:table-cell">Department</th>
-                <th className="px-4 py-3 text-right">Action</th>
+                <th className="px-3 sm:px-4 py-3 text-left font-semibold">Code</th>
+                <th className="px-3 sm:px-4 py-3 text-left font-semibold">Name</th>
+                <th className="px-3 sm:px-4 py-3 text-left font-semibold hidden sm:table-cell">Email</th>
+                <th className="px-3 sm:px-4 py-3 text-left font-semibold hidden md:table-cell">Department</th>
+                <th className="px-3 sm:px-4 py-3 text-right font-semibold">Action</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-slate-200">
               {employees.map((emp) => (
-                <tr key={emp.id} className="hover:bg-slate-50 transition">
-                  <td className="px-4 py-3 font-medium text-slate-700">
+                <tr key={emp.id} className="hover:bg-slate-50 transition-colors duration-150">
+                  <td className="px-3 sm:px-4 py-3 sm:py-4 font-semibold text-slate-700">
                     {emp.employee_id}
                   </td>
 
-                  <td className="px-4 py-3 text-slate-800">
+                  <td className="px-3 sm:px-4 py-3 sm:py-4 font-medium text-slate-800">
                     {emp.full_name}
                   </td>
 
-                  <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">
+                  <td className="px-3 sm:px-4 py-3 sm:py-4 text-slate-600 hidden sm:table-cell">
                     {emp.email}
                   </td>
 
-                  <td className="px-4 py-3 hidden md:table-cell">
+                  <td className="px-3 sm:px-4 py-3 sm:py-4 hidden md:table-cell">
                     <DepartmentBadge name={emp.department} />
                   </td>
 
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-3 sm:px-4 py-3 sm:py-4 text-right">
                     <button
                       onClick={() => setConfirmId(emp.id)}
-                      className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 text-sm font-medium"
+                      className="inline-flex items-center gap-1 sm:gap-1.5 text-red-600 hover:text-red-700 text-xs sm:text-sm font-semibold transition-colors duration-150 px-2 py-1 rounded-lg hover:bg-red-50"
                     >
-                      <Trash2 size={14} />
-                      Delete
+                      <Trash2 size={14} className="sm:w-4 sm:h-4" />
+                      <span className="hidden sm:inline">Delete</span>
                     </button>
                   </td>
                 </tr>
@@ -123,8 +117,6 @@ function EmployeeList({ employees = [], refresh, loading = false }) {
           </table>
         </div>
       </div>
-
-      {/* ================= MODAL ================= */}
 
       {confirmId && (
         <DeleteModal
@@ -138,8 +130,6 @@ function EmployeeList({ employees = [], refresh, loading = false }) {
   );
 }
 
-/* ================= DELETE MODAL ================= */
-
 const DeleteModal = memo(function DeleteModal({
   onCancel,
   onConfirm,
@@ -147,28 +137,29 @@ const DeleteModal = memo(function DeleteModal({
   error,
 }) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
-      <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
-
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-4">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl p-5 sm:p-6 w-full max-w-sm">
         <div className="flex items-center gap-3 mb-4">
-          <AlertTriangle className="text-red-500" />
-          <h3 className="font-semibold text-slate-800">
+          <div className="p-2 bg-red-100 rounded-lg">
+            <AlertTriangle className="text-red-600 w-5 h-5 sm:w-6 sm:h-6" />
+          </div>
+          <h3 className="font-bold text-base sm:text-lg text-slate-800">
             Delete Employee
           </h3>
         </div>
 
-        <p className="text-sm text-slate-600 mb-4">
+        <p className="text-sm sm:text-base text-slate-600 mb-5">
           This action cannot be undone.
         </p>
 
         {error && (
-          <p className="text-sm text-red-500 mb-3">{error}</p>
+          <p className="text-xs sm:text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3 mb-4">{error}</p>
         )}
 
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end gap-2 sm:gap-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 rounded-lg border text-slate-600 hover:bg-slate-50"
+            className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium text-sm transition-colors duration-150"
           >
             Cancel
           </button>
@@ -176,7 +167,7 @@ const DeleteModal = memo(function DeleteModal({
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 flex items-center gap-2"
+            className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium text-sm transition-all duration-150 shadow-lg"
           >
             {loading ? (
               <>
@@ -193,11 +184,9 @@ const DeleteModal = memo(function DeleteModal({
   );
 });
 
-/* ================= BADGE ================= */
-
 const DepartmentBadge = memo(function DepartmentBadge({ name }) {
   return (
-    <span className="px-2 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-700">
+    <span className="px-2 sm:px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700">
       {name}
     </span>
   );
