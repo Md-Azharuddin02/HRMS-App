@@ -413,8 +413,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Md Azharuddin**
 
--GitHub:https://github.com/Md-Azharuddin02
--LinkedIn: https://www.linkedin.com/in/mdazharuddin02/
+- GitHub:[gihub.com](https://github.com/Md-Azharuddin02)
+- LinkedIn: [linkedin.com](https://www.linkedin.com/in/mdazharuddin02/)
 - Portfolio: [yourwebsite.com](https://portfolio-tech-tan.vercel.app/)
 
 ---
