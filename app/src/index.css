@@ -1,1 +1,39 @@
 @import "tailwindcss";
+
+/* Design tokens. Brand is a deep teal; neutrals use Tailwind's slate scale. */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --color-brand-50: #effaf8;
+  --color-brand-100: #d5f1ec;
+  --color-brand-200: #ade2d9;
+  --color-brand-500: #14907e;
+  --color-brand-600: #0f766e;
+  --color-brand-700: #115e59;
+  --color-brand-900: #0b3b38;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-slate-50 font-sans text-sm text-slate-900 antialiased;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-500;
+  }
+  dialog::backdrop {
+    background: rgb(15 23 42 / 0.45);
+  }
+}
+
+@media print {
+  aside,
+  header,
+  .no-print {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+}
