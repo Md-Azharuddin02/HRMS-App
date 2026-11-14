@@ -36,13 +36,26 @@ Sign in with the Super Admin you created with the API's seed script.
 - **Dashboard**: headcount, present/absent, currently working, task totals (completed, pending, overdue), attendance chart, department stats, recent activity and notifications. Employees get a personal dashboard.
 - **Departments**: Development, Testing/QA, Design, Marketing and HR, each with members, assigned tasks and live stats.
 - **Employees**: searchable, filterable, sortable directory, plus profiles with tasks, attendance and leave.
-- **Attendance**: check in/out, breaks, worked hours, late arrivals, a daily team status view and history.
+- **Attendance**: one continuous session per day.
+  - Check in, take any number of breaks, resume, and check out. The session closes automatically at the end of the workday.
+  - Breaks are recorded automatically after inactivity (warning at 55 min, break at 60, both configurable) and when the app was closed while working.
+  - Live team view of who is working, on a break, not in yet or done, with break reasons.
 - **Work logs**: daily reports with completed, ongoing, blockers and remarks; history and team view.
 - **Tasks**: create and assign tasks, priority and status, list and board views, overdue flags, detail page with activity history and comments.
 - **Leave**: apply, balances, approve or reject with notes, history.
 - **Notifications**: task assignments, overdue tasks, leave applications and decisions, unread counter, mark as read.
 - **Reports**: daily, weekly, monthly or custom ranges; employee-wise and department-wise tables; CSV export and print to PDF.
 - **Admin panel**: employees, departments, role-permission matrix, application settings and system configuration.
+
+## Desktop only
+
+The app opens only on laptops and desktops. Phones and tablets, including iPads that request the desktop site, see a full-screen notice. Detection uses client hints, the user agent and touch support, not screen width (`src/utils/device.ts`).
+
+**Limits of this check and of attendance tracking in the browser:**
+- Device detection can be spoofed.
+- Browsers don't guarantee that a tab close is detectable. The app records a "closed" break when it is next opened, and a reopen within 60 seconds counts as a refresh.
+- OS screen locks aren't visible to a web page.
+- localStorage only holds hints. Sessions, breaks and timestamps are stored and validated by the API.
 
 ## Roles
 

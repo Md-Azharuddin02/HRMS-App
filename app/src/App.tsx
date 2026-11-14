@@ -1,5 +1,6 @@
 import { lazy, type ReactNode } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { DesktopOnlyGate } from "./components/DesktopOnlyGate";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { RequirePermission } from "./components/RequirePermission";
 import { ToastProvider } from "./components/ui/Toast";
@@ -29,6 +30,7 @@ const guard = (permission: Permission, page: ReactNode) => <RequirePermission pe
 export default function App() {
   return (
     <ErrorBoundary>
+      <DesktopOnlyGate>
       <ToastProvider>
         <SessionProvider fallback={<ListSkeleton rows={6} label="Starting app" />} login={(onSignedIn) => <LoginPage onSignedIn={onSignedIn} />}>
           <BrowserRouter>
@@ -54,6 +56,7 @@ export default function App() {
           </BrowserRouter>
         </SessionProvider>
       </ToastProvider>
+      </DesktopOnlyGate>
     </ErrorBoundary>
   );
 }

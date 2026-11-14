@@ -53,11 +53,22 @@ export interface Department {
 
 export type AttendanceStatus = "present" | "late" | "absent" | "on_leave" | "half_day";
 
+/** How a break started: by the employee, after the inactivity limit, or because the app was closed. */
+export type BreakType = "manual" | "inactivity" | "tab_closed";
+
+/** Where today's continuous session is right now. */
+export type SessionState = "not_checked_in" | "working" | "on_break" | "checked_out" | "auto_checked_out";
+
 export interface BreakPeriod {
+  id: ID;
   start: DateTimeString;
   end: DateTimeString | null;
+  type: BreakType;
+  /** As of the response; an open break keeps growing. */
+  durationMinutes: number;
 }
 
+/** One continuous session per employee per day; breaks pause it, check-out (or the end of the workday) ends it. */
 export interface AttendanceRecord {
   id: ID;
   employeeId: ID;
@@ -65,7 +76,16 @@ export interface AttendanceRecord {
   checkIn: DateTimeString | null;
   checkOut: DateTimeString | null;
   breaks: BreakPeriod[];
+  /** Punctuality for the day. */
   status: AttendanceStatus;
+  state: SessionState;
+  autoCheckedOut: boolean;
+  lastActivityAt: DateTimeString | null;
+  /** Server-computed as of the response. Use `sessionTotals` for live, ticking values. */
+  totalSessionMinutes: number;
+  totalBreakMinutes: number;
+  totalWorkingMinutes: number;
+  numberOfBreaks: number;
 }
 
 export type TaskPriority = "low" | "medium" | "high" | "critical";
@@ -169,6 +189,9 @@ export interface AppSettings {
   dateFormat: DateFormat;
   apiBaseUrl: string;
   emailNotifications: boolean;
+  /** Minutes without interaction before a warning, and before an automatic break. */
+  inactivityWarningMinutes: number;
+  inactivityBreakMinutes: number;
 }
 
 // ---- Query / report shapes ----

@@ -6,6 +6,8 @@ export interface QueryState<T> {
   error: string | null;
   loading: boolean;
   reload: () => void;
+  /** Re-fetch without showing a loading state. */
+  refetch: () => void;
 }
 
 /**
@@ -52,5 +54,6 @@ export function useQuery<T>(fn: () => Promise<T>, deps: unknown[], opts: { keepP
   useEffect(() => onDataChange(() => run(false)), [run]);
 
   const reload = useCallback(() => run(true), [run]);
-  return { data, error, loading, reload };
+  const refetch = useCallback(() => run(false), [run]);
+  return { data, error, loading, reload, refetch };
 }

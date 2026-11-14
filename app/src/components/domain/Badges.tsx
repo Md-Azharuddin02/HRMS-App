@@ -1,6 +1,6 @@
 import { AlertCircle, ArrowDown, ArrowUp, ChevronsUp, Minus } from "lucide-react";
-import type { AttendanceStatus, Department, EmploymentStatus, LeaveStatus, TaskPriority, TaskStatus } from "../../types";
-import { ATTENDANCE_LABEL, EMPLOYMENT_LABEL, LEAVE_STATUS_LABEL, PRIORITY_LABEL, STATUS_LABEL } from "../../utils/labels";
+import type { AttendanceStatus, BreakType, Department, EmploymentStatus, LeaveStatus, SessionState, TaskPriority, TaskStatus } from "../../types";
+import { ATTENDANCE_LABEL, BREAK_TYPE_LABEL, EMPLOYMENT_LABEL, SESSION_STATE_LABEL, LEAVE_STATUS_LABEL, PRIORITY_LABEL, STATUS_LABEL } from "../../utils/labels";
 import { Badge, type Tone } from "../ui/Badge";
 
 const taskTone: Record<TaskStatus, Tone> = { todo: "neutral", in_progress: "blue", review: "violet", completed: "green" };
@@ -27,6 +27,21 @@ export const OverdueBadge = () => (
 
 const attTone: Record<AttendanceStatus, Tone> = { present: "green", late: "amber", absent: "red", on_leave: "violet", half_day: "blue" };
 export const AttendanceBadge = ({ status }: { status: AttendanceStatus }) => <Badge tone={attTone[status]}>{ATTENDANCE_LABEL[status]}</Badge>;
+
+// Same colours wherever a session state appears: employee card, team table, history.
+const sessionTone: Record<SessionState, Tone> = { not_checked_in: "neutral", working: "green", on_break: "amber", checked_out: "blue", auto_checked_out: "violet" };
+const sessionDot: Record<SessionState, string> = {
+  not_checked_in: "bg-slate-400", working: "bg-emerald-500", on_break: "bg-amber-500", checked_out: "bg-blue-500", auto_checked_out: "bg-violet-500",
+};
+export const SessionBadge = ({ state }: { state: SessionState }) => (
+  <Badge tone={sessionTone[state]}>
+    <span className={`size-1.5 rounded-full ${sessionDot[state]}`} aria-hidden />
+    {SESSION_STATE_LABEL[state]}
+  </Badge>
+);
+
+const breakTone: Record<BreakType, Tone> = { manual: "neutral", inactivity: "amber", tab_closed: "violet" };
+export const BreakTypeBadge = ({ type }: { type: BreakType }) => <Badge tone={breakTone[type]}>{BREAK_TYPE_LABEL[type]}</Badge>;
 
 const leaveTone: Record<LeaveStatus, Tone> = { pending: "amber", approved: "green", rejected: "red" };
 export const LeaveStatusBadge = ({ status }: { status: LeaveStatus }) => <Badge tone={leaveTone[status]}>{LEAVE_STATUS_LABEL[status]}</Badge>;

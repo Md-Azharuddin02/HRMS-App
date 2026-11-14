@@ -7,6 +7,7 @@ export const attendanceService: AttendanceService = {
   list: (q) => http.get<AttendanceRecord[]>("/attendance", { ...q }),
   checkIn: () => http.post<AttendanceRecord>("/attendance/check-in"),
   checkOut: () => http.post<AttendanceRecord>("/attendance/check-out"),
-  startBreak: () => http.post<AttendanceRecord>("/attendance/breaks/start"),
+  startBreak: (opts) => http.post<AttendanceRecord>("/attendance/breaks/start", opts ?? { type: "manual" }),
   endBreak: () => http.post<AttendanceRecord>("/attendance/breaks/end"),
+  recordActivity: () => http.post<void>("/attendance/activity"),
 };

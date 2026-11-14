@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { ListSkeleton } from "../components/ui/States";
 import { useQuery } from "../hooks/useQuery";
 import { useSession } from "../hooks/useSession";
+import { AttendanceSessionProvider } from "../modules/attendance/session/AttendanceSessionProvider";
 import { notificationService } from "../services";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
@@ -14,6 +15,7 @@ export function AppLayout() {
   const unread = notes.data?.filter((n) => !n.read).length ?? 0;
 
   return (
+    <AttendanceSessionProvider>
     <div className="min-h-dvh">
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2">
         Skip to content
@@ -28,5 +30,6 @@ export function AppLayout() {
         </main>
       </div>
     </div>
+    </AttendanceSessionProvider>
   );
 }

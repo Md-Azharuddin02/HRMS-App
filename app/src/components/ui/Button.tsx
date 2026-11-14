@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { cn } from "../../utils/format";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
-type Size = "sm" | "md";
+type Size = "sm" | "md" | "lg";
 
 const variants: Record<Variant, string> = {
   primary: "bg-brand-600 text-white hover:bg-brand-700 disabled:bg-brand-600/60",
@@ -16,6 +16,7 @@ const variants: Record<Variant, string> = {
 const sizes: Record<Size, string> = {
   sm: "h-8 gap-1.5 px-2.5 text-xs",
   md: "h-9 gap-2 px-3.5 text-sm",
+  lg: "h-11 gap-2 px-5 text-base font-semibold",
 };
 
 export const buttonClass = (variant: Variant = "primary", size: Size = "md", extra?: string) =>

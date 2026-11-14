@@ -2,7 +2,7 @@
 // The server decides who the caller is (from the access token) and what they may see, so there are no
 // "actor" parameters here and any scope passed in can only narrow results, never widen them.
 import type {
-  Activity, AppNotification, AppSettings, AttendanceRecord, AttendanceTrendPoint, DashboardSummary, DateRange,
+  Activity, AppNotification, AppSettings, AttendanceRecord, BreakType, AttendanceTrendPoint, DashboardSummary, DateRange,
   Department, DepartmentInput, DepartmentStat, Employee, EmployeeInput, ID, LeaveBalance, LeaveInput, LeaveRequest,
   LeaveStatus, Report, RolePermissions, Scope, Task, TaskInput, TaskStatus, WorkLog, WorkLogInput,
 } from "../types";
@@ -40,14 +40,22 @@ export interface DepartmentService {
   remove(id: ID): Promise<void>;
 }
 
-/** Clock actions always apply to the signed-in user. */
+/**
+ * Clock actions always apply to the signed-in user's single session for today.
+ * The API validates every transition (no second check-in, no resume after check-out, one open break at a time)
+ * and closes sessions automatically at the end of the workday.
+ */
 export interface AttendanceService {
   getToday(): Promise<AttendanceRecord | null>;
   list(params: Scope & Partial<DateRange>): Promise<AttendanceRecord[]>;
   checkIn(): Promise<AttendanceRecord>;
   checkOut(): Promise<AttendanceRecord>;
-  startBreak(): Promise<AttendanceRecord>;
+  /** Automatic breaks may pass when they really began; the API clamps it to the session. */
+  startBreak(opts?: { type: BreakType; startedAt?: string }): Promise<AttendanceRecord>;
+  /** Resume work: ends the open break, keeps the same session. */
   endBreak(): Promise<AttendanceRecord>;
+  /** Heartbeat so admins can see last activity. */
+  recordActivity(): Promise<void>;
 }
 
 export interface TaskService {

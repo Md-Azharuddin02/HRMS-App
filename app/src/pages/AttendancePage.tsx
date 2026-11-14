@@ -52,7 +52,7 @@ function MyAttendance() {
     <div className="space-y-5">
       <div className="grid gap-5 lg:grid-cols-5">
         <div className="lg:col-span-3">
-          <ClockCard />
+          <ClockCard showHistory />
         </div>
         <QueryView query={q}>
           {(recs) => {

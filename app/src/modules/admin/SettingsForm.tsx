@@ -18,6 +18,8 @@ function validate(v: AppSettings): Errors<AppSettings> {
     standardHours: v.standardHours > 0 && v.standardHours <= 24 ? undefined : "Enter 1–24 hours",
     lateGraceMinutes: v.lateGraceMinutes >= 0 && v.lateGraceMinutes <= 240 ? undefined : "Enter 0–240 minutes",
     weekendDays: v.weekendDays.length < 7 ? undefined : "At least one working day is required",
+    inactivityWarningMinutes: v.inactivityWarningMinutes >= 1 && v.inactivityWarningMinutes < v.inactivityBreakMinutes ? undefined : "Must be at least 1 and less than the break limit",
+    inactivityBreakMinutes: v.inactivityBreakMinutes >= 2 && v.inactivityBreakMinutes <= 480 ? undefined : "Enter 2–480 minutes",
   };
 }
 
@@ -40,7 +42,7 @@ export function SettingsForm({ initial }: { initial: AppSettings }) {
           </CardBody>
         </Card>
         <Card>
-          <CardHeader title="Working hours" description="Used to mark late arrivals and compute expected hours." />
+          <CardHeader title="Working hours" description="Used to mark late arrivals. Open attendance sessions close automatically at the end time." />
           <CardBody className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Field label="Shift start" required><Input type="time" value={v.workStartTime} onChange={(x) => set("workStartTime", x.target.value)} /></Field>
             <Field label="Shift end" required error={e.workEndTime}><Input type="time" value={v.workEndTime} onChange={(x) => set("workEndTime", x.target.value)} /></Field>
@@ -66,6 +68,17 @@ export function SettingsForm({ initial }: { initial: AppSettings }) {
               </div>
               {e.weekendDays && <p className="mt-1 text-xs text-red-600">{e.weekendDays}</p>}
             </fieldset>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardHeader title="Inactivity" description="With no keyboard or mouse activity in the app, employees are warned and then moved to a break they must resume from." />
+          <CardBody className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Field label="Warn after (min)" error={e.inactivityWarningMinutes}>
+              <Input type="number" min={1} max={479} value={Number.isNaN(v.inactivityWarningMinutes) ? "" : v.inactivityWarningMinutes} onChange={(x) => set("inactivityWarningMinutes", num(x.target.value))} />
+            </Field>
+            <Field label="Move to break after (min)" error={e.inactivityBreakMinutes}>
+              <Input type="number" min={2} max={480} value={Number.isNaN(v.inactivityBreakMinutes) ? "" : v.inactivityBreakMinutes} onChange={(x) => set("inactivityBreakMinutes", num(x.target.value))} />
+            </Field>
           </CardBody>
         </Card>
         <Card>
