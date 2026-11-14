@@ -5,6 +5,7 @@ import {
 import type { AttendanceRecord, BreakPeriod, BreakType, Employee } from "../types";
 import { formatMinutes, isLate, liveState, sessionTotals, workedHours } from "./attendance";
 import { classifyDevice, type DeviceSignals } from "./device";
+import { whatsappShareUrl, workLogMessage } from "./whatsapp";
 import { addDays, countWorkingDays, eachDay, startOfWeek } from "./date";
 import { csvCell, toCsv } from "./export";
 import { dataScope } from "./permissions";
@@ -155,5 +156,23 @@ describe("overdue flag", () => {
   it("treats completed tasks as never overdue", () => {
     expect(isOverdue({ status: "completed", dueDate: "2020-01-01" }, "2026-11-13")).toBe(false);
     expect(isOverdue({ status: "review", dueDate: "2026-11-12" }, "2026-11-13")).toBe(true);
+  });
+});
+
+describe("WhatsApp work log sharing", () => {
+  const log = { date: "2026-11-13", hours: 7.5, completed: ["Fixed login bug", "Reviewed PR"], ongoing: [], blockers: "", remarks: "Leaving early Friday" };
+  it("formats a readable report", () => {
+    const text = workLogMessage(log, { name: "Karan Patel", department: "Development" });
+    expect(text).toContain("*Daily Work Report · ");
+    expect(text).toContain("Karan Patel · Development");
+    expect(text).toContain("Hours: 7h 30m");
+    expect(text).toContain("*Completed*\n• Fixed login bug\n• Reviewed PR");
+    expect(text).not.toContain("*Ongoing*");
+    expect(text).toContain("*Blockers*\nNone");
+    expect(text).toContain("*Remarks*\nLeaving early Friday");
+  });
+  it("encodes the text into a wa.me link and caps its length", () => {
+    expect(whatsappShareUrl("a & b\n#1")).toBe("https://wa.me/?text=a%20%26%20b%0A%231");
+    expect(workLogMessage({ ...log, completed: ["x".repeat(5000)] }, { name: "K" }).length).toBe(3500);
   });
 });

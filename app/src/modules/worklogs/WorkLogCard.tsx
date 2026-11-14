@@ -4,15 +4,18 @@ import { IconButton } from "../../components/ui/Button";
 import { PersonCell } from "../../components/ui/Misc";
 import type { Employee, WorkLog } from "../../types";
 import { formatDate, formatHours, formatTime } from "../../utils/date";
+import { ShareOnWhatsApp } from "./ShareOnWhatsApp";
 
 interface Props {
   log: WorkLog;
   employee?: Employee;
   onEdit?: () => void;
   onDelete?: () => void;
+  /** Show a "share on WhatsApp" action (the signed-in user's own logs). */
+  shareable?: boolean;
 }
 
-export function WorkLogCard({ log, employee, onEdit, onDelete }: Props) {
+export function WorkLogCard({ log, employee, onEdit, onDelete, shareable }: Props) {
   return (
     <article className="rounded-lg border border-slate-200 bg-white p-4">
       <header className="flex flex-wrap items-start justify-between gap-2">
@@ -20,6 +23,7 @@ export function WorkLogCard({ log, employee, onEdit, onDelete }: Props) {
         <div className="flex items-center gap-1">
           <Badge tone="teal">{formatHours(log.hours)}</Badge>
           {log.blockers && <Badge tone="red">Blocked</Badge>}
+          {shareable && <ShareOnWhatsApp log={log} compact />}
           {onEdit && <IconButton icon={Pencil} label="Edit log" onClick={onEdit} />}
           {onDelete && <IconButton icon={Trash2} label="Delete log" className="hover:text-red-600" onClick={onDelete} />}
         </div>

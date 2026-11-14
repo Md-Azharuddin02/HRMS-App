@@ -40,7 +40,7 @@ Sign in with the Super Admin you created with the API's seed script.
   - Check in, take any number of breaks, resume, and check out. The session closes automatically at the end of the workday.
   - Breaks are recorded automatically after inactivity (warning at 55 min, break at 60, both configurable) and when the app was closed while working.
   - Live team view of who is working, on a break, not in yet or done, with break reasons.
-- **Work logs**: daily reports with completed, ongoing, blockers and remarks; history and team view.
+- **Work logs**: daily reports with completed, ongoing, blockers and remarks; history and team view. After submitting (or from any of your saved logs), **Share on WhatsApp** opens WhatsApp with the report filled in so you can send it to your team group.
 - **Tasks**: create and assign tasks, priority and status, list and board views, overdue flags, detail page with activity history and comments.
 - **Leave**: apply, balances, approve or reject with notes, history.
 - **Notifications**: task assignments, overdue tasks, leave applications and decisions, unread counter, mark as read.

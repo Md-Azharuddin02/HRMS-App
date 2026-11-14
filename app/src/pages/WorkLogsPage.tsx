@@ -117,6 +117,7 @@ function LogFeed({ team, onEdit }: { team?: boolean; onEdit?: (log: WorkLog) => 
                     employee={team ? dir.employee(l.employeeId) : undefined}
                     onEdit={l.employeeId === user.id && onEdit ? () => onEdit(l) : undefined}
                     onDelete={l.employeeId === user.id && !team ? () => setDeleting(l) : undefined}
+                    shareable={l.employeeId === user.id}
                   />
                 ))}
               </div>

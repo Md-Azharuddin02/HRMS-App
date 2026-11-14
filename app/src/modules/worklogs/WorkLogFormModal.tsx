@@ -1,3 +1,5 @@
+import { CheckCircle2 } from "lucide-react";
+import { useState } from "react";
 import { Field, Input, Textarea } from "../../components/form/Field";
 import { Button } from "../../components/ui/Button";
 import { Modal } from "../../components/ui/Modal";
@@ -5,7 +7,8 @@ import { useForm, type Errors } from "../../hooks/useForm";
 import { useMutation } from "../../hooks/useMutation";
 import { workLogService } from "../../services";
 import type { WorkLog } from "../../types";
-import { today } from "../../utils/date";
+import { formatDate, today } from "../../utils/date";
+import { ShareOnWhatsApp } from "./ShareOnWhatsApp";
 
 interface FormValues {
   date: string;
@@ -32,19 +35,44 @@ export function WorkLogFormModal({ open, onClose, existing, suggestedHours }: { 
   const form = useForm<FormValues>(
     existing
       ? { date: existing.date, hours: String(existing.hours), completed: existing.completed.join("\n"), ongoing: existing.ongoing.join("\n"), blockers: existing.blockers, remarks: existing.remarks }
-      : { date: today(), hours: suggestedHours ? String(Math.round(suggestedHours * 4) / 4) : "8", completed: "", ongoing: "", blockers: "", remarks: "" },
+      : { date: today(), hours: suggestedHours && suggestedHours >= 0.25 ? String(Math.round(suggestedHours * 4) / 4) : "8", completed: "", ongoing: "", blockers: "", remarks: "" },
     validate,
   );
   const { run, pending } = useMutation();
   const { values: v, errors: e, set } = form;
+  const [saved, setSaved] = useState<WorkLog | null>(null);
 
   const submit = form.handleSubmit(async (x) => {
-    const ok = await run(
+    const log = await run(
       () => workLogService.save({ date: x.date, hours: Number(x.hours), completed: lines(x.completed), ongoing: lines(x.ongoing), blockers: x.blockers.trim(), remarks: x.remarks.trim() }),
       existing ? "Work log updated" : "Work log submitted",
     );
-    if (ok) onClose();
+    if (log) setSaved(log); // stored in the database; now offer to share it
   });
+
+  if (saved) {
+    return (
+      <Modal
+        open={open}
+        onClose={onClose}
+        title={existing ? "Work log updated" : "Work log submitted"}
+        footer={
+          <>
+            <Button variant="secondary" onClick={onClose}>Done</Button>
+            <ShareOnWhatsApp log={saved} />
+          </>
+        }
+      >
+        <div className="flex gap-3 text-sm text-slate-600">
+          <CheckCircle2 className="size-5 shrink-0 text-emerald-600" aria-hidden />
+          <p>
+            Your report for {formatDate(saved.date)} is saved. Share it with your team: WhatsApp opens with the report filled in, then pick your team
+            group and press send.
+          </p>
+        </div>
+      </Modal>
+    );
+  }
 
   return (
     <Modal
