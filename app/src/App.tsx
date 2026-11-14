@@ -6,6 +6,7 @@ import { ToastProvider } from "./components/ui/Toast";
 import { ListSkeleton } from "./components/ui/States";
 import { SessionProvider } from "./hooks/useSession";
 import { AppLayout } from "./layouts/AppLayout";
+import LoginPage from "./pages/LoginPage";
 import type { Permission } from "./types";
 
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
@@ -29,7 +30,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <ToastProvider>
-        <SessionProvider fallback={<ListSkeleton rows={6} label="Starting app" />}>
+        <SessionProvider fallback={<ListSkeleton rows={6} label="Starting app" />} login={(onSignedIn) => <LoginPage onSignedIn={onSignedIn} />}>
           <BrowserRouter>
             <Routes>
               <Route element={<AppLayout />}>

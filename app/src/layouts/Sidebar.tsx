@@ -44,9 +44,6 @@ export function Sidebar({ open, onClose, unread }: { open: boolean; onClose: () 
             </div>
           ))}
         </nav>
-        <p className="border-t border-slate-200 px-4 py-3 text-[11px] leading-4 text-slate-400">
-          Demo build · mock data only. Role switching previews the UI and is not access control.
-        </p>
       </aside>
     </>
   );

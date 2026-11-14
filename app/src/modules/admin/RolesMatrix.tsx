@@ -26,7 +26,7 @@ export function RolesMatrix({ initial }: { initial: RolePermissions }) {
     <Card>
       <CardHeader
         title="Roles & permissions"
-        description={editable ? "Choose what each role can see and do. Real enforcement must also be implemented in the backend." : "Only a Super Admin can change permissions."}
+        description={editable ? "Choose what each role can see and do. The API enforces these on every request." : "Only a Super Admin can change permissions."}
         actions={
           editable && (
             <>

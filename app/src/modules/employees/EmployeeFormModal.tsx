@@ -9,22 +9,23 @@ import { today } from "../../utils/date";
 import { EMPLOYMENT_LABEL, EMPLOYMENT_STATUSES } from "../../utils/labels";
 import { ROLES, ROLE_LABELS } from "../../utils/permissions";
 
-const blank = (departmentId: string): EmployeeInput => ({
+type Values = EmployeeInput & { password: string };
+
+const blank = (departmentId: string): Values => ({
   firstName: "", lastName: "", email: "", phone: "", departmentId, designation: "",
-  joiningDate: today(), status: "probation", role: "employee", location: "Bengaluru",
+  joiningDate: today(), status: "probation", role: "employee", location: "", password: "",
 });
 
-function validate(v: EmployeeInput): Errors<EmployeeInput> {
-  return {
+const validate = (isNew: boolean) => (v: Values): Errors<Values> => ({
+    password: isNew && !v.password ? "Set a starting password" : v.password && v.password.length < 8 ? "Use at least 8 characters" : undefined,
     firstName: required(v.firstName, "First name"),
     lastName: required(v.lastName, "Last name"),
     email: required(v.email, "Email") ?? (EMAIL.test(v.email) ? undefined : "Enter a valid email"),
-    phone: required(v.phone, "Phone") ?? (PHONE.test(v.phone) ? undefined : "Enter a valid phone number"),
+    phone: v.phone && !PHONE.test(v.phone) ? "Enter a valid phone number" : undefined,
     designation: required(v.designation, "Designation"),
     joiningDate: required(v.joiningDate, "Joining date"),
     departmentId: required(v.departmentId, "Department"),
-  };
-}
+});
 
 interface Props {
   open: boolean;
@@ -36,14 +37,14 @@ interface Props {
 /** Create or edit an employee. Remounted per open (via key) so the form starts fresh. */
 export function EmployeeFormModal({ open, onClose, employee, departments }: Props) {
   const { id: _id, ...existing } = employee ?? ({} as Employee);
-  const form = useForm<EmployeeInput>(employee ? existing : blank(departments[0]?.id ?? ""), validate);
+  const form = useForm<Values>(employee ? { ...existing, password: "" } : blank(departments[0]?.id ?? ""), validate(!employee));
   const { run, pending } = useMutation();
   const { values: v, errors: e, set } = form;
 
-  const submit = form.handleSubmit(async (values) => {
+  const submit = form.handleSubmit(async ({ password, ...values }) => {
     const ok = employee
-      ? await run(() => employeeService.update(employee.id, values), "Employee updated")
-      : await run(() => employeeService.create(values), "Employee added");
+      ? await run(() => employeeService.update(employee.id, password ? { ...values, password } : values), password ? "Employee updated and password reset" : "Employee updated")
+      : await run(() => employeeService.create({ ...values, password }), "Employee added");
     if (ok) onClose();
   });
 
@@ -65,7 +66,7 @@ export function EmployeeFormModal({ open, onClose, employee, departments }: Prop
         <Field label="First name" required error={e.firstName}><Input value={v.firstName} onChange={(x) => set("firstName", x.target.value)} autoComplete="off" /></Field>
         <Field label="Last name" required error={e.lastName}><Input value={v.lastName} onChange={(x) => set("lastName", x.target.value)} autoComplete="off" /></Field>
         <Field label="Work email" required error={e.email}><Input type="email" value={v.email} onChange={(x) => set("email", x.target.value)} autoComplete="off" /></Field>
-        <Field label="Phone" required error={e.phone}><Input type="tel" value={v.phone} onChange={(x) => set("phone", x.target.value)} placeholder="+91 98450 00000" /></Field>
+        <Field label="Phone" error={e.phone}><Input type="tel" value={v.phone} onChange={(x) => set("phone", x.target.value)} placeholder="+91 98450 00000" /></Field>
         <Field label="Department" required error={e.departmentId}>
           <Select value={v.departmentId} onChange={(x) => set("departmentId", x.target.value)}>
             {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
@@ -79,10 +80,19 @@ export function EmployeeFormModal({ open, onClose, employee, departments }: Prop
             {EMPLOYMENT_STATUSES.map((s) => <option key={s} value={s}>{EMPLOYMENT_LABEL[s]}</option>)}
           </Select>
         </Field>
-        <Field label="Role" hint="Controls which screens they see once real auth is connected.">
+        <Field label="Role" hint="Controls what they can see and do. Only a Super Admin can grant Super Admin.">
           <Select value={v.role} onChange={(x) => set("role", x.target.value as EmployeeInput["role"])}>
             {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
           </Select>
+        </Field>
+        <Field
+          label={employee ? "Reset password" : "Starting password"}
+          required={!employee}
+          error={e.password}
+          hint={employee ? "Leave blank to keep their current password." : "Share it with them privately; they can change it after signing in."}
+          className="sm:col-span-2"
+        >
+          <Input type="password" value={v.password} onChange={(x) => set("password", x.target.value)} autoComplete="new-password" />
         </Field>
       </form>
     </Modal>

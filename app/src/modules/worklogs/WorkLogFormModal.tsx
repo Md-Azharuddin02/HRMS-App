@@ -28,7 +28,7 @@ function validate(v: FormValues): Errors<FormValues> {
 }
 
 /** Submit or edit a daily work report. Saving the same date again updates that day's log. */
-export function WorkLogFormModal({ open, onClose, employeeId, existing, suggestedHours }: { open: boolean; onClose: () => void; employeeId: string; existing?: WorkLog; suggestedHours?: number }) {
+export function WorkLogFormModal({ open, onClose, existing, suggestedHours }: { open: boolean; onClose: () => void; existing?: WorkLog; suggestedHours?: number }) {
   const form = useForm<FormValues>(
     existing
       ? { date: existing.date, hours: String(existing.hours), completed: existing.completed.join("\n"), ongoing: existing.ongoing.join("\n"), blockers: existing.blockers, remarks: existing.remarks }
@@ -40,7 +40,7 @@ export function WorkLogFormModal({ open, onClose, employeeId, existing, suggeste
 
   const submit = form.handleSubmit(async (x) => {
     const ok = await run(
-      () => workLogService.save({ employeeId, date: x.date, hours: Number(x.hours), completed: lines(x.completed), ongoing: lines(x.ongoing), blockers: x.blockers.trim(), remarks: x.remarks.trim() }),
+      () => workLogService.save({ date: x.date, hours: Number(x.hours), completed: lines(x.completed), ongoing: lines(x.ongoing), blockers: x.blockers.trim(), remarks: x.remarks.trim() }),
       existing ? "Work log updated" : "Work log submitted",
     );
     if (ok) onClose();

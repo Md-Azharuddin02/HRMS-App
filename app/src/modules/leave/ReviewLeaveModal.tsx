@@ -4,7 +4,6 @@ import { Button } from "../../components/ui/Button";
 import { Modal } from "../../components/ui/Modal";
 import { DescriptionList } from "../../components/ui/Misc";
 import { useMutation } from "../../hooks/useMutation";
-import { useSession } from "../../hooks/useSession";
 import { leaveService } from "../../services";
 import type { Employee, LeaveRequest } from "../../types";
 import { formatDate } from "../../utils/date";
@@ -13,7 +12,6 @@ import { LEAVE_TYPE_LABEL } from "../../utils/labels";
 
 /** Approve or reject a request. Rejections require a note so the employee knows why. */
 export function ReviewLeaveModal({ request, employee, decision, onClose }: { request: LeaveRequest; employee?: Employee; decision: "approved" | "rejected"; onClose: () => void }) {
-  const { user } = useSession();
   const [note, setNote] = useState("");
   const [error, setError] = useState<string>();
   const { run, pending } = useMutation();
@@ -21,7 +19,7 @@ export function ReviewLeaveModal({ request, employee, decision, onClose }: { req
 
   const submit = async () => {
     if (!approving && !note.trim()) return setError("Add a reason for the rejection");
-    const ok = await run(() => leaveService.review(request.id, decision, user.id, note.trim()), approving ? "Leave approved" : "Leave rejected");
+    const ok = await run(() => leaveService.review(request.id, decision, note.trim()), approving ? "Leave approved" : "Leave rejected");
     if (ok) onClose();
   };
 

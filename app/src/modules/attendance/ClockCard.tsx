@@ -27,14 +27,14 @@ function useNow(ms = 30_000) {
 
 export function ClockCard() {
   const { user, settings } = useSession();
-  const rec = useQuery(() => attendanceService.getToday(user.id), [user.id]);
+  const rec = useQuery(() => attendanceService.getToday(), [user.id]);
   const { run, pending } = useMutation();
   const [confirmOut, setConfirmOut] = useState(false);
   const now = useNow();
   const state = liveState(rec.data);
   const r = rec.data;
 
-  const act = (fn: (id: string) => Promise<unknown>, msg: string) => run(() => fn(user.id), msg);
+  const act = (fn: () => Promise<unknown>, msg: string) => run(fn, msg);
 
   return (
     <Card>

@@ -19,7 +19,7 @@ interface Props {
 }
 
 export function TaskFormModal({ open, onClose, task, employees, departments }: Props) {
-  const { user, scope } = useSession();
+  const { scope } = useSession();
   // Department heads can only assign within their department.
   const allowedDeps = scope.departmentId ? departments.filter((d) => d.id === scope.departmentId) : departments;
   const initialDept = task?.departmentId ?? allowedDeps[0]?.id ?? "";
@@ -43,7 +43,7 @@ export function TaskFormModal({ open, onClose, task, employees, departments }: P
 
   const submit = form.handleSubmit(async (values) => {
     const input = { ...values, title: values.title.trim(), description: values.description.trim() };
-    const ok = task ? await run(() => taskService.update(task.id, input, user.id), "Task updated") : await run(() => taskService.create(input, user.id), "Task created and assignee notified");
+    const ok = task ? await run(() => taskService.update(task.id, input), "Task updated") : await run(() => taskService.create(input), "Task created and assignee notified");
     if (ok) onClose();
   });
 

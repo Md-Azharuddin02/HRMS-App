@@ -62,7 +62,7 @@ function TaskDetail({ task }: { task: Task }) {
             <Select
               value={task.status}
               disabled={status.pending}
-              onChange={(e) => status.run(() => taskService.setStatus(task.id, e.target.value as TaskStatus, user.id), `Moved to ${STATUS_LABEL[e.target.value as TaskStatus]}`)}
+              onChange={(e) => status.run(() => taskService.setStatus(task.id, e.target.value as TaskStatus), `Moved to ${STATUS_LABEL[e.target.value as TaskStatus]}`)}
               aria-label="Change status"
               className="w-40"
             >
@@ -130,7 +130,7 @@ function ActivityHistory({ task }: { task: Task }) {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!comment.trim()) return;
-    if (await run(() => taskService.comment(task.id, comment.trim(), user.id), "Comment added")) setComment("");
+    if (await run(() => taskService.comment(task.id, comment.trim()), "Comment added")) setComment("");
   };
 
   return (

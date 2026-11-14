@@ -101,7 +101,7 @@ export function EmployeeTable() {
         open={!!deleting}
         danger
         title="Delete employee?"
-        message={<>This permanently removes <strong>{fullName(deleting)}</strong> ({deleting?.id}). Their historical attendance and tasks remain for reporting.</>}
+        message={<>This permanently removes <strong>{fullName(deleting)}</strong> ({deleting?.id}). Only possible for people with no attendance, task or leave history; otherwise set their status to Inactive.</>}
         confirmLabel="Delete"
         loading={del.pending}
         onClose={() => setDeleting(null)}

@@ -1,4 +1,4 @@
-// Central domain types. Shapes mirror what the future backend (Apps Script / Sheets) should return.
+// Central domain types. Shapes match the HRMS API (HRMS-APIs/app/schemas.py).
 
 export type ID = string;
 export type DateFormat = "dd MMM yyyy" | "yyyy-MM-dd" | "dd/MM/yyyy";
@@ -256,5 +256,5 @@ export type TaskInput = Pick<
   Task,
   "title" | "description" | "assigneeId" | "departmentId" | "priority" | "status" | "dueDate"
 >;
-export type WorkLogInput = Omit<WorkLog, "id" | "submittedAt">;
-export type LeaveInput = Pick<LeaveRequest, "employeeId" | "type" | "startDate" | "endDate" | "reason">;
+export type WorkLogInput = Omit<WorkLog, "id" | "employeeId" | "submittedAt">;
+export type LeaveInput = Pick<LeaveRequest, "type" | "startDate" | "endDate" | "reason">;

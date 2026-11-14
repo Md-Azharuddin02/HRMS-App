@@ -26,7 +26,7 @@ export default function WorkLogsPage() {
   const showTeam = can("worklogs.viewAll");
   const [tab, setTab] = useState<Tab>("mine");
   const [form, setForm] = useState<{ existing?: WorkLog } | null>(null);
-  const todayRec = useQuery(() => attendanceService.getToday(user.id), [user.id]);
+  const todayRec = useQuery(() => attendanceService.getToday(), [user.id]);
   const mineToday = useQuery(() => workLogService.list({ employeeId: user.id, from: today(), to: today() }), [user.id]);
   const submittedToday = mineToday.data?.[0];
 
@@ -53,7 +53,6 @@ export default function WorkLogsPage() {
           key={form.existing?.id ?? "new"}
           open
           onClose={() => setForm(null)}
-          employeeId={user.id}
           existing={form.existing}
           suggestedHours={todayRec.data ? workedHours(todayRec.data) : undefined}
         />

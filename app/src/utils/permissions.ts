@@ -38,7 +38,7 @@ export function hasPermission(map: RolePermissions, role: Role, p: Permission): 
 /**
  * Which slice of data a user may see. Org-wide roles get an empty scope;
  * department heads are limited to their department, employees to themselves.
- * UI-only visibility — real enforcement belongs in the backend.
+ * Mirrors the API's own scoping (HRMS-APIs app/deps.py), which is what actually enforces it.
  */
 export function dataScope(user: Employee): Scope {
   if (user.role === "department_head") return { departmentId: user.departmentId };

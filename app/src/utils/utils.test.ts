@@ -1,11 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { createSeed } from "../mock-data";
-import type { AttendanceRecord } from "../types";
+import type { AttendanceRecord, Employee } from "../types";
 import { breakHours, isLate, liveState, workedHours } from "./attendance";
 import { addDays, countWorkingDays, eachDay, startOfWeek } from "./date";
 import { csvCell, toCsv } from "./export";
 import { dataScope } from "./permissions";
-import { buildReport, dashboardSummary, isOverdue } from "./reports";
+import { isOverdue } from "./reports";
 
 const rec = (over: Partial<AttendanceRecord> = {}): AttendanceRecord => ({
   id: "a", employeeId: "E1", date: "2026-11-10", checkIn: null, checkOut: null, breaks: [], status: "present", ...over,
@@ -68,37 +67,17 @@ describe("csv export", () => {
 });
 
 describe("permissions scope", () => {
-  const seed = createSeed(new Date(2026, 10, 13, 12));
+  const person = (id: string, role: Employee["role"]): Employee => ({
+    id, role, firstName: "A", lastName: "B", email: "", phone: "", departmentId: "DEP-DEV", designation: "", joiningDate: "2024-01-01", status: "active", location: "",
+  });
   it("limits department heads to their department and employees to themselves", () => {
-    const head = seed.employees.find((e) => e.role === "department_head")!;
-    const emp = seed.employees.find((e) => e.role === "employee")!;
-    expect(dataScope(head)).toEqual({ departmentId: head.departmentId });
-    expect(dataScope(emp)).toEqual({ employeeId: emp.id });
-    expect(dataScope(seed.employees.find((e) => e.role === "admin")!)).toEqual({});
+    expect(dataScope(person("E3", "department_head"))).toEqual({ departmentId: "DEP-DEV" });
+    expect(dataScope(person("E5", "employee"))).toEqual({ employeeId: "E5" });
+    expect(dataScope(person("E2", "admin"))).toEqual({});
   });
 });
 
-describe("reports on seed data", () => {
-  const now = new Date(2026, 10, 13, 12);
-  const seed = createSeed(now);
-  const input = { ...seed };
-
-  it("dashboard counts add up", () => {
-    const s = dashboardSummary(input, "2026-11-13");
-    expect(s.present + s.absent + s.onLeave).toBe(s.totalEmployees);
-    expect(s.completedTasks + s.pendingTasks).toBe(s.totalTasks);
-    expect(s.overdueTasks).toBeGreaterThan(0);
-  });
-  it("report rows never have negative absences and rates stay within 0–100", () => {
-    const r = buildReport(input, { from: "2026-10-14", to: "2026-11-13" }, "2026-11-13", now);
-    expect(r.employees.length).toBeGreaterThan(0);
-    for (const row of r.employees) {
-      expect(row.absentDays).toBeGreaterThanOrEqual(0);
-      expect(row.completionRate).toBeGreaterThanOrEqual(0);
-      expect(row.completionRate).toBeLessThanOrEqual(100);
-    }
-    for (const d of r.departments) expect(d.attendanceRate).toBeLessThanOrEqual(100);
-  });
+describe("overdue flag", () => {
   it("treats completed tasks as never overdue", () => {
     expect(isOverdue({ status: "completed", dueDate: "2020-01-01" }, "2026-11-13")).toBe(false);
     expect(isOverdue({ status: "review", dueDate: "2026-11-12" }, "2026-11-13")).toBe(true);

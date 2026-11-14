@@ -32,7 +32,7 @@ export default function AdminPage() {
       </div>
       {tab === "employees" && <EmployeeTable />}
       {tab === "departments" && <DepartmentGrid />}
-      {/* Keyed on data so forms re-initialise after saves or a demo reset. */}
+      {/* Keyed on data so forms re-initialise after saves. */}
       {tab === "roles" && <QueryView query={perms}>{(p) => <RolesMatrix key={JSON.stringify(p)} initial={p} />}</QueryView>}
       {tab === "settings" && <QueryView query={settings}>{(s) => <SettingsForm key={JSON.stringify(s)} initial={s} />}</QueryView>}
       {tab === "system" && <QueryView query={settings}>{(s) => <SystemConfig key={JSON.stringify(s)} initial={s} />}</QueryView>}

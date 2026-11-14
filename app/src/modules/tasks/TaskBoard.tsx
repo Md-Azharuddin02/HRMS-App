@@ -52,7 +52,7 @@ export function TaskBoard({ tasks, dir }: { tasks: Task[]; dir: Directory }) {
                     {canChangeStatus(task, user.id, can) && (
                       <select
                         value={task.status}
-                        onChange={(e) => run(() => taskService.setStatus(task.id, e.target.value as TaskStatus, user.id), `Moved to ${STATUS_LABEL[e.target.value as TaskStatus]}`)}
+                        onChange={(e) => run(() => taskService.setStatus(task.id, e.target.value as TaskStatus), `Moved to ${STATUS_LABEL[e.target.value as TaskStatus]}`)}
                         aria-label={`Change status of ${task.title}`}
                         className="mt-2 h-7 w-full rounded border border-slate-200 bg-slate-50 px-1.5 text-xs text-slate-700 focus:border-brand-500 focus:outline-none"
                       >

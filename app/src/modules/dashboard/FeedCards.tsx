@@ -13,7 +13,7 @@ import { formatRelative } from "../../utils/date";
 export function ActivityFeed({ limit = 8 }: { limit?: number }) {
   const { scope } = useSession();
   const dir = useDirectory();
-  const q = useQuery(() => activityService.list(limit, scope), [limit, scope.departmentId, scope.employeeId]);
+  const q = useQuery(() => activityService.list(limit), [limit, scope.departmentId, scope.employeeId]);
   return (
     <Card>
       <CardHeader title="Recent activity" />
@@ -47,7 +47,7 @@ export function ActivityFeed({ limit = 8 }: { limit?: number }) {
 
 export function NotificationsPreview({ limit = 5 }: { limit?: number }) {
   const { user } = useSession();
-  const q = useQuery(() => notificationService.list(user.id), [user.id]);
+  const q = useQuery(() => notificationService.list(), [user.id]);
   return (
     <Card>
       <CardHeader title="Notifications" actions={<Link to="/notifications" className="text-xs font-medium text-brand-700 hover:underline">View all</Link>} />

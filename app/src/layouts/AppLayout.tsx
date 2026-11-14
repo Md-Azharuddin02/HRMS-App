@@ -10,7 +10,7 @@ import { Topbar } from "./Topbar";
 export function AppLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user } = useSession();
-  const notes = useQuery(() => notificationService.list(user.id), [user.id]);
+  const notes = useQuery(() => notificationService.list(), [user.id]);
   const unread = notes.data?.filter((n) => !n.read).length ?? 0;
 
   return (

@@ -1,39 +1,35 @@
-import { Database, RefreshCw, Save } from "lucide-react";
-import { useState } from "react";
-import { Field, Input, Select } from "../../components/form/Field";
+import { Server, Save } from "lucide-react";
+import { Field, Select } from "../../components/form/Field";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Card, CardBody, CardHeader } from "../../components/ui/Card";
-import { ConfirmDialog } from "../../components/ui/Modal";
 import { useForm } from "../../hooks/useForm";
 import { useMutation } from "../../hooks/useMutation";
 import { useSession } from "../../hooks/useSession";
 import { settingsService } from "../../services";
 import type { AppSettings } from "../../types";
 
-type Values = Pick<AppSettings, "apiBaseUrl" | "timezone" | "dateFormat" | "emailNotifications">;
+type Values = Pick<AppSettings, "timezone" | "dateFormat" | "emailNotifications">;
 const TIMEZONES = ["Asia/Kolkata", "Asia/Dubai", "Europe/London", "America/New_York", "UTC"];
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
-/** Integration and environment settings. The API URL is stored only — no requests are made until a backend is wired in. */
+/** Environment settings that affect how the API computes "today", lateness and notifications. */
 export function SystemConfig({ initial }: { initial: AppSettings }) {
   const { can } = useSession();
   const editable = can("settings.manage");
-  const form = useForm<Values>(
-    { apiBaseUrl: initial.apiBaseUrl, timezone: initial.timezone, dateFormat: initial.dateFormat, emailNotifications: initial.emailNotifications },
-    (v) => ({ apiBaseUrl: v.apiBaseUrl && !/^https:\/\/\S+$/.test(v.apiBaseUrl) ? "Use a full https:// URL" : undefined }),
-  );
+  const form = useForm<Values>({ timezone: initial.timezone, dateFormat: initial.dateFormat, emailNotifications: initial.emailNotifications }, () => ({}));
   const save = useMutation();
-  const reset = useMutation();
-  const [confirmReset, setConfirmReset] = useState(false);
-  const { values: v, errors: e, set } = form;
+  const { values: v, set } = form;
 
   return (
     <div className="space-y-5">
       <Card>
-        <CardHeader title="Data source" actions={<Badge tone="amber"><Database className="size-3" aria-hidden />Mock data</Badge>} />
+        <CardHeader title="Data source" actions={<Badge tone="green"><Server className="size-3" aria-hidden />Connected</Badge>} />
         <CardBody className="space-y-2 text-sm text-slate-600">
-          <p>All screens read and write through the service layer in <code className="rounded bg-slate-100 px-1 text-xs">src/services</code>. Right now those services use in-browser mock data that resets daily.</p>
-          <p>To go live, replace each service's implementation with calls to your API while keeping the contracts in <code className="rounded bg-slate-100 px-1 text-xs">src/services/contracts.ts</code>.</p>
+          <p>
+            All data is stored by the HRMS API at <code className="break-all rounded bg-slate-100 px-1 text-xs">{API_URL}</code>. The URL is set at build time with{" "}
+            <code className="rounded bg-slate-100 px-1 text-xs">VITE_API_URL</code>.
+          </p>
         </CardBody>
       </Card>
 
@@ -42,12 +38,9 @@ export function SystemConfig({ initial }: { initial: AppSettings }) {
           <CardHeader title="System configuration" />
           <fieldset disabled={!editable}>
             <CardBody className="grid gap-4 sm:grid-cols-2">
-              <Field label="API base URL" error={e.apiBaseUrl} hint="Saved for later. Not used by the mock services." className="sm:col-span-2">
-                <Input type="url" value={v.apiBaseUrl} onChange={(x) => set("apiBaseUrl", x.target.value.trim())} placeholder="https://script.google.com/macros/s/…/exec" />
-              </Field>
-              <Field label="Timezone" hint="Sent to the backend; the browser shows local time.">
+              <Field label="Company timezone" hint="Decides when a new working day starts and who counts as late.">
                 <Select value={v.timezone} onChange={(x) => set("timezone", x.target.value)}>
-                  {TIMEZONES.map((t) => <option key={t}>{t}</option>)}
+                  {[...new Set([v.timezone, ...TIMEZONES])].map((t) => <option key={t}>{t}</option>)}
                 </Select>
               </Field>
               <Field label="Date format">
@@ -59,7 +52,7 @@ export function SystemConfig({ initial }: { initial: AppSettings }) {
               </Field>
               <label className="flex items-center gap-2 text-sm text-slate-700 sm:col-span-2">
                 <input type="checkbox" checked={v.emailNotifications} onChange={(x) => set("emailNotifications", x.target.checked)} className="size-4 rounded border-slate-300 accent-brand-600" />
-                Send email copies of notifications (once a backend is connected)
+                Email copies of notifications (saved for when an email provider is configured)
               </label>
               {editable && (
                 <div className="flex justify-end sm:col-span-2">
@@ -70,29 +63,6 @@ export function SystemConfig({ initial }: { initial: AppSettings }) {
           </fieldset>
         </Card>
       </form>
-
-      {editable && (
-        <Card>
-          <CardHeader title="Demo data" />
-          <CardBody className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600">
-            <p>Restore all employees, tasks, attendance and settings to the original sample data.</p>
-            <Button variant="danger" icon={RefreshCw} onClick={() => setConfirmReset(true)}>Reset demo data</Button>
-          </CardBody>
-        </Card>
-      )}
-      <ConfirmDialog
-        open={confirmReset}
-        danger
-        title="Reset all demo data?"
-        message="Every change made in this browser (new employees, tasks, leave, attendance, settings) will be discarded."
-        confirmLabel="Reset data"
-        loading={reset.pending}
-        onClose={() => setConfirmReset(false)}
-        onConfirm={async () => {
-          await reset.run(() => settingsService.resetDemoData(), "Demo data restored");
-          setConfirmReset(false);
-        }}
-      />
     </div>
   );
 }

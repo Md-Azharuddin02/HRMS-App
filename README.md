@@ -1,8 +1,8 @@
-# WorkforceHub — Team & Workforce Management (Frontend)
+# WorkforceHub — Team & Workforce Management
 
 A responsive React + TypeScript frontend for managing a team of 11–25 people across departments: attendance, work logs, tasks, leave, notifications, reports and admin settings.
 
-**Frontend only.** All data comes from a mock service layer in the browser. There is no backend, API or real authentication yet; the role switcher only previews what each role would see.
+This repo is the React frontend. Data, sign-in and permissions are handled by the [HRMS API](https://github.com/Md-Azharuddin02/HRMS-APIs) (FastAPI + PostgreSQL).
 
 ## Tech stack
 
@@ -10,11 +10,18 @@ React 19 · TypeScript · Vite · Tailwind CSS v4 · React Router · Lucide icon
 
 ## Getting started
 
+Start the [API](https://github.com/Md-Azharuddin02/HRMS-APIs#run-locally) first (it listens on `http://localhost:8000`), then:
+
 ```bash
 cd app
+cp .env.example .env   # VITE_API_URL, defaults to http://localhost:8000
 npm install
 npm run dev
 ```
+
+Sign in with the Super Admin you created with the API's seed script.
+
+**Deploying (Vercel):** set `VITE_API_URL` to your API's public URL in the project's environment variables, and add the Vercel URL to the API's `CORS_ORIGINS`.
 
 | Script | What it does |
 | --- | --- |
@@ -39,36 +46,27 @@ npm run dev
 
 ## Roles
 
-Switch roles from the top bar: **Super Admin, Admin, Department Head, HR, Employee**. Navigation, dashboards and actions change per role, and Department Heads only see their own department. Permissions can be edited in **Admin → Roles & permissions**.
+**Super Admin, Admin, Department Head, HR, Employee.** Each person signs in with their own account. Their role decides the navigation, dashboard and actions they see, and Department Heads only see their own department. A Super Admin can edit what each role may do in **Admin → Roles & permissions**.
 
-> This is UI-only visibility. Real authorisation must be enforced by the backend.
+The API enforces the same permissions and data scope on every request, so hiding a button is never the only protection.
 
 ## Architecture
 
 ```
 app/src
 ├── components/   reusable UI kit (ui/), form fields (form/), domain badges (domain/)
-├── layouts/      app shell: sidebar, top bar, navigation config
-├── pages/        one file per route
+├── layouts/      app shell: sidebar, top bar, navigation config, change-password dialog
+├── pages/        one file per route, plus the sign-in page
 ├── modules/      feature components (tasks, leave, attendance, reports, admin, …)
 ├── hooks/        useQuery, useMutation, useForm, useTable, useSession, useDirectory
-├── services/     service contracts + mock implementations (the only data access layer)
-├── mock-data/    seed data, generated relative to today
-├── types/        shared domain types
-└── utils/        dates, attendance maths, report maths, permissions, CSV export
+├── services/     REST client (http.ts) and one service per API area, typed by contracts.ts
+├── types/        shared domain types (match the API's camelCase JSON)
+└── utils/        dates, attendance maths, permissions, CSV export
 ```
 
-## Connecting a real backend
+**Auth.** The short-lived access token is kept in memory only. The refresh token is an httpOnly cookie, so a page reload signs you back in silently. A 401 triggers one shared refresh and the request is retried.
 
-Pages and components never touch mock data directly; they call the services exported from `src/services/index.ts`.
-
-1. Keep the interfaces in `src/services/contracts.ts`.
-2. Rewrite each `src/services/*Service.ts` to call your API (for example a Google Apps Script web app) and return the same shapes defined in `src/types`.
-3. Delete `src/services/mock/` and `src/mock-data/` once nothing imports them.
-
-`useMutation` refreshes every open screen after any successful write, so the UI stays in sync without further changes.
-
-Mock data is saved in `localStorage` and reseeds each day. You can also reset it from **Admin → System → Reset demo data**.
+**Data.** Pages call the services in `src/services`. `useMutation` refreshes every open screen after a successful write.
 
 ## Author
 

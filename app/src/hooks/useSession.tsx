@@ -1,14 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { demoUsers } from "../mock-data";
-import { employeeService, settingsService } from "../services";
-import type { AppSettings, Employee, Permission, Role, RolePermissions, Scope } from "../types";
+import { authService, employeeService, http, settingsService, type AuthSession } from "../services";
+import type { AppSettings, Employee, Permission, Role, Scope } from "../types";
 import { setDateFormat } from "../utils/date";
 import { dataScope, hasPermission } from "../utils/permissions";
 import { useQuery } from "./useQuery";
 
 /**
- * Frontend-only "session": which demo user you're viewing the app as.
- * This is NOT security — it only shapes navigation and visibility. Real auth/authorisation lives in the backend.
+ * The signed-in user. Permissions here only shape the UI; the API enforces them on every request.
  */
 interface Session {
   user: Employee;
@@ -16,57 +14,59 @@ interface Session {
   scope: Scope;
   settings: AppSettings;
   can: (p: Permission) => boolean;
-  switchRole: (role: Role) => void;
+  signOut: () => Promise<void>;
+  /** Clears the local session without calling the API (e.g. after a password change revoked it). */
+  endSession: () => void;
 }
 
 const SessionContext = createContext<Session | null>(null);
-const ROLE_KEY = "wfh-demo-role";
 
-function initialRole(): Role {
-  try {
-    const r = localStorage.getItem(ROLE_KEY) as Role | null;
-    if (r && r in demoUsers) return r;
-  } catch {
-    // storage unavailable
-  }
-  return "super_admin";
-}
+type Auth = { state: "loading" } | { state: "signedOut" } | { state: "signedIn"; session: AuthSession };
 
-export function SessionProvider({ children, fallback }: { children: ReactNode; fallback: ReactNode }) {
-  const [role, setRole] = useState<Role>(initialRole);
-  // Fetch user and role together and keep the previous pair while switching,
-  // so the app never renders a role with the wrong user (and never blanks out).
-  const active = useQuery(() => employeeService.get(demoUsers[role]).then((u) => ({ user: u, role })), [role], { keepPrevious: true });
-  const perms = useQuery<RolePermissions>(() => settingsService.rolePermissions(), []);
-  const settings = useQuery(() => settingsService.get(), []);
+export function SessionProvider({ children, fallback, login }: { children: ReactNode; fallback: ReactNode; login: (onSignedIn: (s: AuthSession) => void) => ReactNode }) {
+  const [auth, setAuth] = useState<Auth>({ state: "loading" });
 
   useEffect(() => {
-    try {
-      localStorage.setItem(ROLE_KEY, role);
-    } catch {
-      // storage unavailable
-    }
-  }, [role]);
+    http.onUnauthenticated(() => {
+      http.setToken(null);
+      setAuth({ state: "signedOut" });
+    });
+    authService.refresh().then(
+      (session) => setAuth({ state: "signedIn", session }),
+      () => setAuth({ state: "signedOut" }),
+    );
+  }, []);
 
-  const switchRole = useCallback((r: Role) => setRole(r), []);
+  const onSignedIn = useCallback((session: AuthSession) => setAuth({ state: "signedIn", session }), []);
+  const endSession = useCallback(() => {
+    http.setToken(null);
+    setAuth({ state: "signedOut" });
+  }, []);
 
-  const value = useMemo<Session | null>(() => {
-    if (!active.data || !perms.data || !settings.data) return null;
-    const map = perms.data;
-    const { user, role: activeRole } = active.data;
-    setDateFormat(settings.data.dateFormat);
-    // The switcher's role wins even if an admin later edits the demo user's role.
+  if (auth.state === "loading") return <>{fallback}</>;
+  if (auth.state === "signedOut") return <>{login(onSignedIn)}</>;
+  return <SignedIn key={auth.session.user.id} initial={auth.session} endSession={endSession}>{children}</SignedIn>;
+}
+
+function SignedIn({ initial, endSession, children }: { initial: AuthSession; endSession: () => void; children: ReactNode }) {
+  // Re-read after any change so edits to your own profile, role permissions or settings show up immediately.
+  const user = useQuery(() => employeeService.get(initial.user.id), [initial.user.id]).data ?? initial.user;
+  const perms = useQuery(() => settingsService.rolePermissions(), []).data ?? initial.permissions;
+  const settings = useQuery(() => settingsService.get(), []).data ?? initial.settings;
+
+  const value = useMemo<Session>(() => {
+    setDateFormat(settings.dateFormat);
     return {
       user,
-      role: activeRole,
-      scope: dataScope({ ...user, role: activeRole }),
-      settings: settings.data,
-      can: (p) => hasPermission(map, activeRole, p),
-      switchRole,
+      role: user.role,
+      scope: dataScope(user),
+      settings,
+      can: (p) => hasPermission(perms, user.role, p),
+      signOut: () => authService.logout().finally(endSession),
+      endSession,
     };
-  }, [active.data, perms.data, settings.data, switchRole]);
+  }, [user, perms, settings, endSession]);
 
-  if (!value) return <>{fallback}</>;
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
 

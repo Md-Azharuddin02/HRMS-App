@@ -12,7 +12,7 @@ import { LEAVE_TYPES, LEAVE_TYPE_LABEL } from "../../utils/labels";
 type Values = Omit<LeaveInput, "employeeId">;
 
 export function LeaveFormModal({ open, onClose, balances }: { open: boolean; onClose: () => void; balances: LeaveBalance[] }) {
-  const { user, settings } = useSession();
+  const { settings } = useSession();
   const remaining = (t: LeaveType) => {
     const b = balances.find((x) => x.type === t);
     return !b || b.allowance === null ? Infinity : b.allowance - b.used - b.pending;
@@ -34,7 +34,7 @@ export function LeaveFormModal({ open, onClose, balances }: { open: boolean; onC
   const left = remaining(v.type);
 
   const submit = form.handleSubmit(async (x) => {
-    const ok = await run(() => leaveService.apply({ ...x, reason: x.reason.trim(), employeeId: user.id }), "Leave request submitted for approval");
+    const ok = await run(() => leaveService.apply({ ...x, reason: x.reason.trim() }), "Leave request submitted for approval");
     if (ok) onClose();
   });
 

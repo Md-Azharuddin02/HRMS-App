@@ -28,7 +28,7 @@ const matches = (n: AppNotification, f: Filter) =>
 
 export default function NotificationsPage() {
   const { user } = useSession();
-  const q = useQuery(() => notificationService.list(user.id), [user.id]);
+  const q = useQuery(() => notificationService.list(), [user.id]);
   const [filter, setFilter] = useState<Filter>("all");
   const { run, pending } = useMutation();
   const all = q.data ?? [];
@@ -39,7 +39,7 @@ export default function NotificationsPage() {
       <PageHeader
         title="Notifications"
         description={unread ? `You have ${unread} unread notification(s).` : "You're all caught up."}
-        actions={<Button variant="secondary" icon={CheckCheck} disabled={!unread} loading={pending} onClick={() => run(() => notificationService.markAllRead(user.id), "All notifications marked as read")}>Mark all as read</Button>}
+        actions={<Button variant="secondary" icon={CheckCheck} disabled={!unread} loading={pending} onClick={() => run(() => notificationService.markAllRead(), "All notifications marked as read")}>Mark all as read</Button>}
       />
       <div className="mb-4">
         <Tabs<Filter>

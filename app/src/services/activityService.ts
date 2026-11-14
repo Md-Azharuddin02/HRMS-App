@@ -1,8 +1,7 @@
 import type { ActivityService } from "./contracts";
-import { db, employeeMatches, respond } from "./mock/db";
+import { http } from "./http";
+import type { Activity } from "../types";
 
 export const activityService: ActivityService = {
-  async list(limit, scope) {
-    return respond(db.activities.filter((a) => a.actorId === "system" ? !scope?.employeeId : employeeMatches(scope, a.actorId)).slice(0, limit));
-  },
+  list: (limit) => http.get<Activity[]>("/activities", { limit }),
 };
